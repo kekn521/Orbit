@@ -1,0 +1,29 @@
+services:
+  orbit:
+    build: .
+    ports:
+      - '127.0.0.1:3000:3000'
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3000
+      DATA_DIR: /app/data
+      TZ: Asia/Taipei
+    volumes:
+      - orbit-data:/app/data
+    restart: unless-stopped
+    init: true
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3000/api/dashboard').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+volumes:
+  orbit-data:
